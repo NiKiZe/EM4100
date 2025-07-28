@@ -1,0 +1,173 @@
+<style>
+.em4100 {
+  width: 460px; margin-left: auto; margin-right: auto;
+}
+.em4100 td {
+  white-space: nowrap;
+  text-align: center;
+  font-family: Consolas, monospace;
+  min-width: 30px;
+}
+
+.em4100 td.h {
+  background-color: #ff6666;
+}
+.em4100 td.v {
+  background-color: #ffff66;
+}
+.em4100 td.data {
+  background-color: #66ffff;
+}
+.em4100 td.parity {
+  background-color: #ffcc99;
+}
+
+</style>
+Protocol explanation from <a href="https://www.priority1design.com.au/em4100_protocol.html">priority1design.com.au</a> visualized.
+<table class="em4100" border="0" cellpadding="3" cellspacing="0">
+        <tbody>
+          <tr>
+            <td class="h">1</td>
+            <td class="h">1</td>
+            <td class="h">1</td>
+            <td class="h">1</td>
+            <td class="h">1</td>
+            <td class="h">1</td>
+            <td class="h">1</td>
+            <td class="h">1</td>
+            <td class="h">1</td>
+            <td>9 header bits</td>
+          </tr>
+          <tr>
+            <td colspan="4" rowspan="2">8 bit ver. no/<br/>customer ID</td>
+            <td class="v" id="emd00">D00</td>
+            <td class="v" id="emd01">D01</td>
+            <td class="v" id="emd02">D02</td>
+            <td class="v" id="emd03">D03</td>
+            <td class="parity" id="emp0">P0</td>
+            <td id="emx0"></td>
+          </tr>
+          <tr>
+            <td class="v" id="emd04">D04</td>
+            <td class="v" id="emd05">D05</td>
+            <td class="v" id="emd06">D06</td>
+            <td class="v" id="emd07">D07</td>
+            <td class="parity" id="emp1">P1</td>
+            <td id="emx1"></td>
+          </tr>
+          <tr>
+            <td colspan="4" rowspan="8" style="vertical-align: top;">32 Data Bits</td>
+            <td class="data" id="emd08">D08</td>
+            <td class="data" id="emd09">D09</td>
+            <td class="data" id="emd10">D10</td>
+            <td class="data" id="emd11">D11</td>
+            <td class="parity" id="emp2">P2</td>
+            <td id="emx2"></td>
+          </tr>
+          <tr>
+            <td class="data" id="emd12">D12</td>
+            <td class="data" id="emd13">D13</td>
+            <td class="data" id="emd14">D14</td>
+            <td class="data" id="emd15">D15</td>
+            <td class="parity" id="emp3">P3</td>
+            <td id="emx3"></td>
+          </tr>
+          <tr>
+            <td class="data" id="emd16">D16</td>
+            <td class="data" id="emd17">D17</td>
+            <td class="data" id="emd18">D18</td>
+            <td class="data" id="emd19">D19</td>
+            <td class="parity" id="emp4">P4</td>
+            <td id="emx4"></td>
+          </tr>
+          <tr>
+            <td class="data" id="emd20">D20</td>
+            <td class="data" id="emd21">D21</td>
+            <td class="data" id="emd22">D22</td>
+            <td class="data" id="emd23">D23</td>
+            <td class="parity" id="emp5">P5</td>
+            <td id="emx5"></td>
+          </tr>
+          <tr>
+            <td class="data" id="emd24">D24</td>
+            <td class="data" id="emd25">D25</td>
+            <td class="data" id="emd26">D26</td>
+            <td class="data" id="emd27">D27</td>
+            <td class="parity" id="emp6">P6</td>
+            <td id="emx6"></td>
+          </tr>
+          <tr>
+            <td class="data" id="emd28">D28</td>
+            <td class="data" id="emd29">D29</td>
+            <td class="data" id="emd30">D30</td>
+            <td class="data" id="emd31">D31</td>
+            <td class="parity" id="emp7">P7</td>
+            <td id="emx7"></td>
+          </tr>
+          <tr>
+            <td class="data" id="emd32">D32</td>
+            <td class="data" id="emd33">D33</td>
+            <td class="data" id="emd34">D34</td>
+            <td class="data" id="emd35">D35</td>
+            <td class="parity" id="emp8">P8</td>
+            <td id="emx8"></td>
+          </tr>
+          <tr>
+            <td class="data" id="emd36">D36</td>
+            <td class="data" id="emd37">D37</td>
+            <td class="data" id="emd38">D38</td>
+            <td class="data" id="emd39">D39</td>
+            <td class="parity" id="emp9">P9</td>
+            <td id="emx9"></td>
+          </tr>
+          <tr>
+            <td colspan="4">Col. parity</td>
+            <td class="parity" id="empc0">PC0</td>
+            <td class="parity" id="empc1">PC1</td>
+            <td class="parity" id="empc2">PC2</td>
+            <td class="parity" id="empc3">PC3</td>
+            <td class="h">S0</td>
+            <td>1 stop bit (0)</td>
+          </tr>
+        </tbody>
+      </table>
+
+
+
+<script>
+const zeroPad = (num, places) => String(num).padStart(places, '0')
+
+function setEmBitDisplay(value) {
+  console.log(value);
+  if (value.length != 10) throw new Error("EM data must be 10 hex chars '" + value + "'");
+  // TODO verify valid hex
+  let i_r = 0;
+  let p_c = [0, 0, 0, 0]
+  for (let l = 0; l < value.length; l++) {
+    document.getElementById("emx" + i_r).innerText=value[l];
+    let bits = zeroPad(parseInt(value[l], 16).toString(2), 4)
+    let pb = 0;
+    for (let ib = 0; ib < 4; ib++) {
+      let i = i_r * 4 + ib;
+      let e = document.getElementById("emd" + zeroPad(i, 2));
+      e.title="Data " + zeroPad(i, 2);
+      let bdata = parseInt(bits[ib]);
+      e.innerText=bdata;
+      pb = pb ^ bdata;
+      p_c[ib] = p_c[ib] ^ bdata;
+    }
+    let e = document.getElementById("emp" + i_r);
+    e.title="Parity Row " + i_r;
+    e.innerText=pb;
+    
+    i_r++;
+  }
+  for (let ib = 0; ib < 4; ib++) {
+    let e = document.getElementById("empc" + ib);
+    e.title="Parity Column " + ib;
+    e.innerText=p_c[ib];
+  }
+}
+
+setEmBitDisplay("0101c1e381");
+</script>
