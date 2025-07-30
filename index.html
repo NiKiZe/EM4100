@@ -185,7 +185,6 @@ function revbits(v) {
   return v >>> 0;
 }
 
-let tagout = document.getElementById("tagOut");
 // convert input value 
 function formatTags(value) {
   value = parseInt(value);
@@ -193,8 +192,7 @@ function formatTags(value) {
   var res = "Hex: " + fh10.toUpperCase() +
             "\nRAW Dec: " + value;
   if (fh10.length > 10) {
-    tagout.innerHTML = res + " can not be more than 10 nibbles long";
-    return;
+    return res + " can not be more than 10 nibbles long";
   }
   setEmBitDisplay(fh10);
   let h1 = parseInt(fh10.substring(0, 2), 16);
@@ -212,13 +210,13 @@ function formatTags(value) {
          "\nSolid: " + revbits(h8) +
          "\nAptus: " + apt +
          "\n";
-  tagout.innerHTML = res.replaceAll("\n", "<br/>\n");
   return res;
 }
 
 let taginp = document.getElementById("taginput");
+let tagout = document.getElementById("tagOut");
 function updateTag(e) {
-  formatTags(taginp.value);
+  tagout.innerHTML = formatTags(taginp.value).replaceAll("\n", "<br/>\n");
 }
 taginp.addEventListener("input", updateTag);
 
@@ -255,5 +253,5 @@ testcase("7F00000002", "0000000002", "00000002", "000 127 0000000002", "00000000
 testcase("7fffffffff", "4294967295", "25565535", "000 127 4294967295", "553565535", "4294967295", "755813887");
 testcase("ffffffffff", "4294967295", "25565535", "000 255 4294967295", "553565535", "4294967295", "511627775");
 
-formatTags(taginp.value)
+updateTag();
 </script>
