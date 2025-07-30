@@ -190,7 +190,7 @@ function formatTags(value) {
   value = parseInt(value);
   let fh10 = zeroPad(value.toString(16), 10);
   var res = "Hex: " + fh10.toUpperCase() +
-            "\nRAW Dec: " + value;
+            "\neAV RAW Dec: " + zeroPad(value, 14);
   if (fh10.length > 10) {
     return res + " can not be more than 10 nibbles long";
   }
@@ -205,10 +205,11 @@ function formatTags(value) {
   let apt = zeroPad(value.toString().substring(value.toString().length - 9), 9);
   res += "\nDec10: " + fd10 +
          "\nDec8: " + fd8 +
-         "\nBewator: 000 " + zeroPad(h1, 3) + " " + fd10 +
-         "\nRCO: " + rco.substring(rco.length - 9) + 
-         "\nSolid: " + revbits(h8) +
-         "\nAptus: " + apt +
+         "\neBe Bewator8: " + fd10.substring(2) +
+         "\nBewator: 000 " + zeroPad(h1, 3) + " " + fd10.substring(0, 2) + " " + fd10.substring(2) +
+         "\neA Aptus: " + apt +
+         "\neR RCO: " + rco.substring(rco.length - 9) + 
+         "\neS Solid: " + revbits(h8) +
          "\n";
   return res;
 }
@@ -225,7 +226,7 @@ function testcase(data, d10, d8, bewator, rco, solid, apt) {
   console.assert(f.includes("Hex: " + data.toUpperCase() + "\n"));
   console.assert(f.includes("Dec10: " + d10 + "\n"));
   console.assert(f.includes("Dec8: " + d8 + "\n"));
-  console.assert(f.includes("Bewator: " + bewator + "\n"), "bewator " + bewator + " vs " + f);
+  console.assert(f.replaceAll(" ", "").includes("Bewator:" + bewator.replaceAll(" ", "") + "\n"), "bewator " + bewator + " vs " + f);
   console.assert(f.includes("RCO: " + rco + "\n"), "rco " + rco + " vs " + f);
   console.assert(f.includes("Solid: " + solid + "\n"), "solid " + solid + " hex: " + parseInt(solid).toString(16) + " vs " + f);
   console.assert(f.includes("Aptus: " + apt + "\n"), "apt " + apt + " vs " + f);
