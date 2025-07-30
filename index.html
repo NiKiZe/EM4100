@@ -132,6 +132,8 @@ Protocol explanation from <a href="https://www.priority1design.com.au/em4100_pro
         </tbody>
       </table>
 
+<input type="text" value="4324451201" id="taginput">
+<div id="tagOut"></div>
 
 
 <script>
@@ -169,5 +171,89 @@ function setEmBitDisplay(value) {
   }
 }
 
-setEmBitDisplay("0101c1e381");
+function revbits(v) {
+  // swap odd and even bits
+  v = ((v >> 1) & 0x55555555) | ((v & 0x55555555) << 1);
+  // swap consecutive pairs
+  v = ((v >> 2) & 0x33333333) | ((v & 0x33333333) << 2);
+  // swap nibbles ... 
+  v = ((v >> 4) & 0x0F0F0F0F) | ((v & 0x0F0F0F0F) << 4);
+  // swap bytes
+  //v = ((v >> 8) & 0x00FF00FF) | ((v & 0x00FF00FF) << 8);
+  // swap 2-byte long pairs
+  //v = ( v >> 16             ) | ( v               << 16);
+  return v >>> 0;
+}
+
+let tagout = document.getElementById("tagOut");
+// convert input value 
+function formatTags(value) {
+  value = parseInt(value);
+  let fh10 = zeroPad(value.toString(16), 10);
+  var res = "Hex: " + fh10.toUpperCase() +
+            "\nRAW Dec: " + value;
+  if (fh10.length > 10) {
+    tagout.innerHTML = res + " can not be more than 10 nibbles long";
+    return;
+  }
+  setEmBitDisplay(fh10);
+  let h1 = parseInt(fh10.substring(0, 2), 16);
+  let h8 = parseInt(fh10.substring(2), 16);
+  let h24 = parseInt(fh10.substring(2, 6), 16);
+  let hl4 = parseInt(fh10.substring(6), 16);
+  let fd10 = zeroPad(h8, 10);
+  let fd8 = zeroPad(parseInt(fh10.substring(4, 6), 16), 3) + zeroPad(hl4, 5);
+  let rco = zeroPad(h24, 4) + zeroPad(hl4, 5);
+  let apt = zeroPad(value.toString().substring(value.toString().length - 9), 9);
+  res += "\nDec10: " + fd10 +
+         "\nDec8: " + fd8 +
+         "\nBewator: 000 " + zeroPad(h1, 3) + " " + fd10 +
+         "\nRCO: " + rco.substring(rco.length - 9) + 
+         "\nSolid: " + revbits(h8) +
+         "\nAptus: " + apt +
+         "\n";
+  tagout.innerHTML = res.replaceAll("\n", "<br/>\n");
+  return res;
+}
+
+let taginp = document.getElementById("taginput");
+function updateTag(e) {
+  formatTags(taginp.value);
+}
+taginp.addEventListener("input", updateTag);
+
+function testcase(data, d10, d8, bewator, rco, solid, apt) {
+  let f = formatTags("0x" + data);
+  console.assert(f.includes("Hex: " + data.toUpperCase() + "\n"));
+  console.assert(f.includes("Dec10: " + d10 + "\n"));
+  console.assert(f.includes("Dec8: " + d8 + "\n"));
+  console.assert(f.includes("Bewator: " + bewator + "\n"), "bewator " + bewator + " vs " + f);
+  console.assert(f.includes("RCO: " + rco + "\n"), "rco " + rco + " vs " + f);
+  console.assert(f.includes("Solid: " + solid + "\n"), "solid " + solid + " hex: " + parseInt(solid).toString(16) + " vs " + f);
+  console.assert(f.includes("Aptus: " + apt + "\n"), "apt " + apt + " vs " + f);
+}
+testcase("0000000001", "0000000001", "00000001", "000 000 0000000001", "000000001", "128", "000000001");
+testcase("0000000002", "0000000002", "00000002", "000 000 0000000002", "000000002", "64", "000000002");
+testcase("0000000003", "0000000003", "00000003", "000 000 0000000003", "000000003", "192", "000000003");
+testcase("0000000004", "0000000004", "00000004", "000 000 0000000004", "000000004", "32", "000000004");
+testcase("0000000005", "0000000005", "00000005", "000 000 0000000005", "000000005", "160", "000000005");
+testcase("0000000006", "0000000006", "00000006", "000 000 0000000006", "000000006", "96", "000000006");
+testcase("0000000007", "0000000007", "00000007", "000 000 0000000007", "000000007", "224", "000000007");
+testcase("0000000008", "0000000008", "00000008", "000 000 0000000008", "000000008", "16", "000000008");
+testcase("00000000ff", "0000000255", "00000255", "000 000 0000000255", "000000255", "255", "000000255");
+testcase("0000000100", "0000000256", "00000256", "000 000 0000000256", "000000256", "32768", "000000256");
+testcase("0000000F00", "0000003840", "00003840", "000 000 0000003840", "000003840", "61440", "000003840");
+testcase("000000F000", "0000061440", "00061440", "000 000 0000061440", "000061440", "3840", "000061440");
+testcase("00000F0000", "0000983040", "01500000", "000 000 0000983040", "001500000", "15728640", "000983040");
+
+testcase("0101c1e381", "0029483905", "19358241", "000 001 0029483905", "044958241", "2156119937", "324451201");
+testcase("0017000002", "0385875970", "00000002", "000 000 0385875970", "588800002", "3892314176", "385875970");
+testcase("0117000002", "0385875970", "00000002", "000 001 0385875970", "588800002", "3892314176", "680843266");
+testcase("1fffffffff", "4294967295", "25565535", "000 031 4294967295", "553565535", "4294967295", "438953471");
+testcase("5fffffffff", "4294967295", "25565535", "000 095 4294967295", "553565535", "4294967295", "316860415");
+testcase("7F00000002", "0000000002", "00000002", "000 127 0000000002", "000000002", "64", "460846594");
+testcase("7fffffffff", "4294967295", "25565535", "000 127 4294967295", "553565535", "4294967295", "755813887");
+testcase("ffffffffff", "4294967295", "25565535", "000 255 4294967295", "553565535", "4294967295", "511627775");
+
+formatTags(taginp.value)
 </script>
