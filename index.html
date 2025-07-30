@@ -148,6 +148,50 @@ Value to convert, decimal value, or HEX value prefixed with 0x:<br/>
 <input type="text" value="4324451201" id="taginput">
 <div id="tagOut"></div>
 
+<h3>Different EM4100 number formattings as best as I have been able to reverse them</h3>
+<table border="1" cellspacing="0" cellpadding="3">
+  <tr>
+    <th scope="col">format</th>
+    <th scope="col">explanation</th>
+  </tr>
+  <tr>
+    <th scope="row">HEX</th>
+    <td>1 Byte version/customer id and 4 bytes data</td>
+  </tr>
+  <tr>
+    <th scope="row">eAV - EM Full, Raw Dec</th>
+    <td>HEX converted to full decimal number</td>
+  </tr>
+  <tr>
+    <th scope="row">Dec 10</th>
+    <td>4 ID bytes converted to decimal and zero padded</td>
+  </tr>
+  <tr>
+    <th scope="row">Dec 8</th>
+    <td>Last 3 ID bytes, split 1,2 and padded to 3,5</td>
+  </tr>
+  <tr>
+    <th scope="row">eBe - EM Bewator 8</th>
+    <td>Same as Dec 10, cut down to 8</td>
+  </tr>
+  <tr>
+    <th scope="row">Bewator</th>
+    <td>Same as Dec 10, prefixed with first byte</td>
+  </tr>
+  <tr>
+    <th scope="row">eA - EM Aptus</th>
+    <td>Full RAW Dec, cut and padded to 9 diggits</td>
+  </tr>
+  <tr>
+    <th scope="row">eR - EM RCO</th>
+    <td>4 ID bytes, split into 2 bytes each, padded to 5 diggits, combined and last 9 diggits used</td>
+  </tr>
+  <tr>
+    <th scope="row">eS - EM Solid</th>
+    <td>4 ID bytes, reversing all bits in each byte</td>
+  </tr>
+
+</table>
 
 <script>
 const zeroPad = (num, places) => String(num).padStart(places, '0')
