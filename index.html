@@ -190,6 +190,10 @@ Value to convert, decimal value, or HEX value prefixed with 0x:<br/>
     <th scope="row">eS - EM Solid</th>
     <td>4 ID bytes, reversing all bits in each byte</td>
   </tr>
+  <tr>
+    <th scope="row">Axema</th>
+    <td>Same as Aptus but with a magic 4 first (4 is probably EM4100 type) </td>
+  </tr>
 
 </table>
 
@@ -267,6 +271,7 @@ function formatTags(value) {
          "\neA Aptus: " + apt +
          "\neR RCO: " + rco.substring(rco.length - 9) + 
          "\neS Solid: " + revbits(h8) +
+         "\nAxema: 4" + apt +
          "\n";
   return res;
 }
