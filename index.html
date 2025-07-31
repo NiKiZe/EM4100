@@ -201,7 +201,6 @@ Value to convert, decimal value, or HEX value prefixed with 0x:<br/>
 const zeroPad = (num, places) => String(num).padStart(places, '0')
 
 function setEmBitDisplay(value) {
-  console.log(value);
   if (value.length != 10) throw new Error("EM data must be 10 hex chars '" + value + "'");
   // TODO verify valid hex
   let i_r = 0;
@@ -250,7 +249,7 @@ function revbits(v) {
 function formatTags(value) {
   value = parseInt(value);
   let fh10 = zeroPad(value.toString(16), 10);
-  var res = "Hex: " + fh10.toUpperCase() +
+  var res = "Hex: 0x" + zeroPad(fh10.toUpperCase(), 10) +
             "\neAV RAW Dec: " + zeroPad(value, 14);
   if (fh10.length > 10) {
     return res + " can not be more than 10 nibbles long";
@@ -276,8 +275,8 @@ function formatTags(value) {
   return res;
 }
 
-let taginp = document.getElementById("taginput");
-let tagout = document.getElementById("tagOut");
+const taginp = document.getElementById("taginput");
+const tagout = document.getElementById("tagOut");
 function updateTag(e) {
   tagout.innerHTML = formatTags(taginp.value).replaceAll("\n", "<br/>\n");
 }
@@ -285,7 +284,7 @@ taginp.addEventListener("input", updateTag);
 
 function testcase(data, d10, d8, bewator, rco, solid, apt) {
   let f = formatTags("0x" + data);
-  console.assert(f.includes("Hex: " + data.toUpperCase() + "\n"));
+  console.assert(f.includes("Hex: 0x" + data.toUpperCase() + "\n"));
   console.assert(f.includes("Dec10: " + d10 + "\n"));
   console.assert(f.includes("Dec8: " + d8 + "\n"));
   console.assert(f.replaceAll(" ", "").includes("Bewator:" + bewator.replaceAll(" ", "") + "\n"), "bewator " + bewator + " vs " + f);
