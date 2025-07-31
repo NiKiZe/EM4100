@@ -160,6 +160,9 @@ Protocol explanation from <a href="https://www.priority1design.com.au/em4100_pro
 <input type="text" value="4324451201" id="taginput">
 <div id="tagOut"></div>
 
+<h4>Below you can input multiple values, one per line:</h4>
+<textarea id="tagmulti" cols="60" rows="10"></textarea>
+
 <h3>Different EM4100 number formattings as best as I have been able to reverse them</h3>
 <table border="1" cellspacing="0" cellpadding="3">
   <tr>
@@ -321,12 +324,49 @@ const taginp = document.getElementById("taginput");
 const tagout = document.getElementById("tagOut");
 function updateTag(e) {
   const v = fmttovalue(taginp.value, getinfmt())
+  updateMulti();
   tagout.innerHTML = formatTags(v).replaceAll("\n", "<br/>\n");
 }
 for (const r of form.infmt) {
   r.addEventListener('change', updateTag);
 }
 taginp.addEventListener("input", updateTag);
+
+const tagmulti = document.getElementById("tagmulti");
+function updateMulti(e) {
+  const infmt = getinfmt();
+  // TODO maybe consider selectionEnd
+  let p = tagmulti.value.substring(0, tagmulti.selectionStart).split('\n');
+  // line is the number of lines
+  let posline = p.length;
+  // col is the length of the last line
+  let poscol = p[p.length-1].length;
+
+  let restorePos = -1;
+  let res = "";
+  for (const line of tagmulti.value.split('\n')) {
+    if (restorePos === -1 && res.split('\n').length >= posline) {
+      restorePos = res.length + poscol;
+    }
+
+    const val = line.trim().split('\t')[0];
+    if (val.length == 0 || parseInt(val) == NaN) {
+      res += val + '\n';
+      continue;
+    }
+    const fmtd = formatTags(fmttovalue(val, infmt)).replaceAll('\n', '\t').trim();
+    res += val + '\t' + fmtd + '\n';
+    console.log(val, fmtd);
+  }
+  if (tagmulti.value != res) {
+    tagmulti.value = res;
+    if (restorePos != -1) {
+      tagmulti.selectionStart = restorePos;
+      tagmulti.selectionEnd = restorePos;
+    }
+  }
+}
+tagmulti.addEventListener("input", updateMulti);
 
 function testcase(data, d10, d8, bewator, rco, solid, apt) {
   let f = formatTags("0x" + data);
