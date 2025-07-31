@@ -144,7 +144,19 @@ Protocol explanation from <a href="https://www.priority1design.com.au/em4100_pro
         </tbody>
       </table>
 
-Value to convert, decimal value, or HEX value prefixed with 0x:<br/>
+<form>
+  <fieldset>
+    <legend>Format of value to convert</legend>
+    <input type="radio" id="ch_hex" name="infmt" value="hex" />
+    <label for="ch_hex">Hex</label>
+
+    <input type="radio" id="ch_dec" name="infmt" value="dec" checked />
+    <label for="ch_dec">Decimal</label>
+
+    <input type="radio" id="ch_bewator" name="infmt" value="bewator" />
+    <label for="ch_bewator">Bewator</label>
+  </fieldset>
+</form>
 <input type="text" value="4324451201" id="taginput">
 <div id="tagOut"></div>
 
@@ -275,10 +287,44 @@ function formatTags(value) {
   return res;
 }
 
+function fmttovalue(value, fmt) {
+  console.log(fmt, value);
+  if (fmt === "hex") {
+    return parseInt(value, 16);
+  }
+  if (fmt === "bewator") {
+    // get 10 diggits, pad 8 diggits value with frequent value TODO make configurable
+    if (value.length <= 8) value = "3" + zeroPad(value, 8);
+    // prepend frequent first byte (if missing) TODO make configurable
+    var h1 = 1;
+    var fd10 = value
+    if (value.length > 10) {
+      fd10 = value.substring(value.length - 10);
+      h1 = parseInt(value.substring(0, value.length - 10));
+    }
+    // value is 4 bytes id
+    var h8 = zeroPad(parseInt(fd10).toString(16), 8);
+    return parseInt(h1.toString(16) + h8, 16);
+  }
+
+  return parseInt(value);
+}
+
+const form = document.querySelector("form");
+function getinfmt() {
+  for (const entry of new FormData(form)) {
+    return entry[1];
+  }
+  return "";
+}
 const taginp = document.getElementById("taginput");
 const tagout = document.getElementById("tagOut");
 function updateTag(e) {
-  tagout.innerHTML = formatTags(taginp.value).replaceAll("\n", "<br/>\n");
+  const v = fmttovalue(taginp.value, getinfmt())
+  tagout.innerHTML = formatTags(v).replaceAll("\n", "<br/>\n");
+}
+for (const r of form.infmt) {
+  r.addEventListener('change', updateTag);
 }
 taginp.addEventListener("input", updateTag);
 
