@@ -207,7 +207,7 @@ Protocol explanation from <a href="https://www.priority1design.com.au/em4100_pro
   </tr>
   <tr>
     <th scope="row">Axema</th>
-    <td>Same as Aptus but with a magic 4 first (4 is probably EM4100 type) </td>
+    <td>Raw Dec, Often same as Aptus prefixed by a 4</td>
   </tr>
 
 </table>
@@ -285,7 +285,7 @@ function formatTags(value) {
          "\neA Aptus: " + apt +
          "\neR RCO: " + rco.substring(rco.length - 9) + 
          "\neS Solid: " + revbits(h8) +
-         "\nAxema: 4" + apt +
+         "\nAxema: " + value +
          "\n";
   return res;
 }
